@@ -2,16 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { Investment } from "../types/investment";
+import { useApp } from "../contexts/AppContext";
 
 interface InvestmentFormProps {
-  onSubmit: (investment: Omit<Investment, "id">) => void;
-  initialValues?: Investment;
+  investmentId?: string;
+  onSubmit: () => void;
 }
 
 export default function InvestmentForm({
+  investmentId,
   onSubmit,
-  initialValues,
 }: InvestmentFormProps) {
+  const { addInvestment, updateInvestment, getInvestmentById } = useApp();
   const [investment, setInvestment] = useState<Omit<Investment, "id">>({
     name: "",
     amount: 0,
@@ -22,14 +24,22 @@ export default function InvestmentForm({
   });
 
   useEffect(() => {
-    if (initialValues) {
-      setInvestment(initialValues);
+    if (investmentId) {
+      const existingInvestment = getInvestmentById(investmentId);
+      if (existingInvestment) {
+        setInvestment(existingInvestment);
+      }
     }
-  }, [initialValues]);
+  }, [investmentId, getInvestmentById]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(investment);
+    if (investmentId) {
+      updateInvestment(investmentId, investment);
+    } else {
+      addInvestment(investment);
+    }
+    onSubmit();
     setInvestment({
       name: "",
       amount: 0,
@@ -145,7 +155,7 @@ export default function InvestmentForm({
         type="submit"
         className="bg-primary text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
       >
-        {initialValues ? "Update Investment" : "Add Investment"}
+        {investmentId ? "Update Investment" : "Add Investment"}
       </button>
     </form>
   );

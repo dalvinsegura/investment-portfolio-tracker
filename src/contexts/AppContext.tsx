@@ -8,6 +8,7 @@ interface AppContextType {
   addInvestment: (investment: Omit<Investment, "id">) => void;
   updateInvestment: (id: string, investment: Partial<Investment>) => void;
   deleteInvestment: (id: string) => void;
+  getInvestmentById: (id: string) => Investment | undefined;
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -50,6 +51,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     setInvestments((prev) => prev.filter((inv) => inv.id !== id));
   }, []);
 
+  const getInvestmentById = useCallback(
+    (id: string) => {
+      return investments.find((inv) => inv.id === id);
+    },
+    [investments]
+  );
+
   const login = useCallback(async (email: string, password: string) => {
     // Simulated login
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -73,6 +81,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         addInvestment,
         updateInvestment,
         deleteInvestment,
+        getInvestmentById,
         user,
         login,
         logout,
